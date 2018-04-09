@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using AWSSimpleClients.Clients;
+using BuzzCurrency.Library.Consts;
+using BuzzCurrency.Library.Enums;
 using BuzzCurrency.Logging;
 using Newtonsoft.Json;
 
@@ -19,7 +20,6 @@ namespace BuzzCurrency.UserPostConfirmation
         #region Properties
         const string ConfirmSignUp = "PostConfirmation_ConfirmSignUp";
         const string EMPTY_STRING = "-";
-        const string TableName = "BuzzCurrency-Users";
 
         private RegionEndpoint _region { get; set; }
         private string _accessKey { get; set; }
@@ -69,17 +69,21 @@ namespace BuzzCurrency.UserPostConfirmation
                         ["Birthdate"] = new AttributeValue() { S = attributes.Birthdate.ToString() },
                         ["Gender"] = new AttributeValue() { S = EMPTY_STRING },
                         ["Address"] = new AttributeValue() { S = EMPTY_STRING },
-                        ["Country"] = new AttributeValue() { S = EMPTY_STRING }
+                        ["Country"] = new AttributeValue() { S = EMPTY_STRING },
+                        ["UserType"] = new AttributeValue() { S = UserType.Confirmed.ToString() },
+                        ["ImageUrl"] = new AttributeValue() { S = EMPTY_STRING },
+                        ["Active"] = new AttributeValue() { BOOL = true },
+                        ["CreatedOn"] = new AttributeValue() { S = DateTime.UtcNow.ToShortDateString() },
+                        ["ModifiedOn"] = new AttributeValue() { S = DateTime.UtcNow.ToShortDateString() }
                     };
 
                     var response = AWS.DynamoDB.PutItemAsync(new PutItemRequest()
                     {
-                        TableName = TableName,
+                        TableName = DynamoTables.Users,
                         Item = userAttributes
                     }).GetAwaiter().GetResult();
 
-                    if (response.HttpStatusCode != System.Net.HttpStatusCode.OK && 
-                        response.HttpStatusCode != System.Net.HttpStatusCode.Accepted)
+                    if (response.HttpStatusCode != System.Net.HttpStatusCode.OK && response.HttpStatusCode != System.Net.HttpStatusCode.Accepted)
                     {
                         throw new Exception(string.Format("Failed to create confirmed user - {0}", userAttributes["Email"].S.ToString()));
                     }
