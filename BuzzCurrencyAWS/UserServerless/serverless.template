@@ -1,17 +1,17 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Transform" : "AWS::Serverless-2016-10-31",
-  "Description" : "An AWS Serverless Application.",
+  "Description" : "Buzz currency APIs",
 
   "Resources" : {
 
     "Get" : {
       "Type" : "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "UserServerless::UserServerless.Functions::Get",
+        "Handler": "BuzzCurrency.Serverless::BuzzCurrency.Serverless.User.Functions::Get",
         "Runtime": "dotnetcore2.0",
         "CodeUri": "",
-        "MemorySize": 256,
+        "MemorySize": 128,
         "Timeout": 30,
         "Role": null,
         "Policies": [ "AWSLambdaBasicExecutionRole" ],
@@ -29,10 +29,10 @@
 	"Post": {
 		"Type" : "AWS::Serverless::Function",
 		"Properties": {
-        "Handler": "UserServerless::UserServerless.Functions::Post",
+        "Handler": "BuzzCurrency.Serverless::User.Functions::Post",
         "Runtime": "dotnetcore2.0",
         "CodeUri": "",
-        "MemorySize": 256,
+        "MemorySize": 128,
         "Timeout": 30,
         "Role": null,
         "Policies": [ "AWSLambdaBasicExecutionRole" ],

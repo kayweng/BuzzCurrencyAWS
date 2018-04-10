@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuzzCurrency.Logging", "Buz
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuzzCurrency.Library", "BuzzCurrency.Library\BuzzCurrency.Library.csproj", "{98CD3621-870D-4895-8C43-030D9F746860}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserServerless", "UserServerless\UserServerless.csproj", "{61D148C8-678C-47E1-BBAF-6B513E73CE1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuzzCurrency.Serverless", "UserServerless\BuzzCurrency.Serverless.csproj", "{61D148C8-678C-47E1-BBAF-6B513E73CE1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuzzCurrency.Repository", "BuzzCurrency.Repository\BuzzCurrency.Repository.csproj", "{DFE672C5-4564-469F-8BE3-01CD43AC39E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuzzCurrency.Repository", "BuzzCurrency.Repository\BuzzCurrency.Repository.csproj", "{DFE672C5-4564-469F-8BE3-01CD43AC39E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

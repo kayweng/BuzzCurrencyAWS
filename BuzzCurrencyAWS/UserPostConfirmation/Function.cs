@@ -45,7 +45,7 @@ namespace BuzzCurrency.UserPostConfirmation
 
         #region Function
         /// <summary>
-        /// create a user record into dynamo db which user is confirmed
+        /// Create an user record to database when user confirmed the email verification.
         /// </summary>
         /// <param name="context"></param>
         public CognitoContext FunctionHandler (CognitoContext model, ILambdaContext context)
@@ -63,7 +63,8 @@ namespace BuzzCurrency.UserPostConfirmation
                     {
                         ["Email"] = new AttributeValue() { S = attributes.CognitoEmail_Alias },
                         ["EmailVerified"] = new AttributeValue() { BOOL = attributes.CognitoUser_Status == "CONFIRMED" ? true : false },
-                        ["Name"] = new AttributeValue() { S = attributes.Name },
+                        ["FirstName"] = new AttributeValue() { S = attributes.Name.Split(' ')[0] },
+                        ["LastName"] = new AttributeValue() { S = attributes.Name.Split(' ')[1] },
                         ["PhoneNumber"] = new AttributeValue() { S = attributes.Phone_Number },
                         ["PhoneNumberVerified"] = new AttributeValue() { BOOL = attributes.Phone_Number_Verified == "true" ? true : false },
                         ["Birthdate"] = new AttributeValue() { S = attributes.Birthdate.ToString() },

@@ -16,7 +16,7 @@ using BuzzCurrency.Repository;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
 
-namespace UserServerless
+namespace BuzzCurrency.Serverless.User
 {
     public class Functions
     {
@@ -41,6 +41,12 @@ namespace UserServerless
         #endregion
 
         #region API Methods
+        /// <summary>
+        /// Retrieve user information by username (email)
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
         {
             string username = null;
@@ -64,7 +70,6 @@ namespace UserServerless
                     };
                 }
             }
-
 
             return new APIGatewayProxyResponse
             {

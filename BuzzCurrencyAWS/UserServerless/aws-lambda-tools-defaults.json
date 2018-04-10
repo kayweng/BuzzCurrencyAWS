@@ -10,10 +10,10 @@
     "region"      : "ap-southeast-1",
     "configuration" : "Release",
     "framework"     : "netcoreapp2.0",
-    "s3-prefix"     : "UserServerless/",
+    "s3-prefix"     : "BuzzCurrencyServerless/",
     "template"      : "serverless.template",
     "template-parameters" : "",
     "s3-bucket"           : "dev.stack.buzzcurrency.com",
-    "stack-name"          : "BuzzCurrency-UserServerless",
+    "stack-name"          : "BuzzCurrency-Serverless",
     "stack-wait"          : false
 }

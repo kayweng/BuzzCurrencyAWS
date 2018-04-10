@@ -35,23 +35,85 @@ namespace BuzzCurrency.Repository
 
                 if (document != null)
                 {
-                    return new UserProfile()
+                    var user = new UserProfile();
+
+                    if (document.ContainsKey("Email"))
                     {
-                        Email = document["Email"].AsString(),
-                        EmailVerified = document["EmailVerified"].AsBoolean(),
-                        Name = document["Name"].AsString(),
-                        Birthdate = document["Birthdate"].AsString(),
-                        PhoneNumber = document["PhoneNumber"].AsString(),
-                        PhoneNumberVerified = document["PhoneNumberVerified"].AsBoolean(),
-                        Gender = document["Gender"].AsString(),
-                        Address = document["Address"].AsString(),
-                        Country = document["Gender"].AsString(),
-                        UserType = (UserType)Enum.Parse(typeof(UserType), document["UserType"].AsString()),
-                        ImageUrl = document["ImageUrl"].AsString(),
-                        Active = document["Active"].AsBoolean(),
-                        CreatedOn = document["CreatedOn"].AsString(),
-                        ModifiedOn = document["ModifiedOn"].AsString()
-                    };
+                        user.Email = document["Email"].AsString();
+                    }
+
+                    if (document.ContainsKey("EmailVerified"))
+                    {
+                        user.EmailVerified = document["EmailVerified"].AsBoolean();
+                    }
+
+                    if (document.ContainsKey("FirstName"))
+                    {
+                        user.FirstName = document["FirstName"].AsString();
+                    }
+
+                    if (document.ContainsKey("LastName"))
+                    {
+                        user.LastName = document["LastName"].AsString();
+                    }
+
+                    if (document.ContainsKey("Birthdate"))
+                    {
+                        user.Birthdate = document["Birthdate"].AsString();
+                    }
+
+                    if (document.ContainsKey("PhoneNumber"))
+                    {
+                        user.PhoneNumber = document["PhoneNumber"].AsString();
+                    }
+
+                    if (document.ContainsKey("PhoneNumberVerified"))
+                    {
+                        user.PhoneNumberVerified = document["PhoneNumberVerified"].AsBoolean();
+                    }
+
+                    if (document.ContainsKey("Gender"))
+                    {
+                        user.Gender = document["Gender"].AsString();
+                    }
+
+                    if (document.ContainsKey("Address"))
+                    {
+                        user.Address = document["Address"].AsString();
+                    }
+
+                    if (document.ContainsKey("Country"))
+                    {
+                        user.Country = document["Country"].AsString();
+                    }
+
+                    if (document.ContainsKey("UserType"))
+                    {
+                        user.UserType = (UserType)Enum.Parse(typeof(UserType), document["UserType"].AsString());
+                        user.UserTypeDescription = user.UserType.ToString();
+                    }
+
+                    if (document.ContainsKey("ImageUrl"))
+                    {
+                        user.ImageUrl = document["ImageUrl"].AsString();
+                    }
+
+                    if (document.ContainsKey("Active"))
+                    {
+                        user.Active = document["Active"].AsBoolean();
+                    }
+
+                    if (document.ContainsKey("CreatedOn"))
+                    {
+                        user.CreatedOn = document["CreatedOn"].AsString();
+                    }
+
+                    if (document.ContainsKey("ModifiedOn"))
+                    {
+                        user.ModifiedOn = document["ModifiedOn"].AsString();
+                    }
+
+                    return user;
                 }
 
             }

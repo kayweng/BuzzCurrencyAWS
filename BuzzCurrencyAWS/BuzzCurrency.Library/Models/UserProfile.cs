@@ -11,8 +11,11 @@ namespace BuzzCurrency.Library.Models
         [JsonProperty("EmailVerified")]
         public bool EmailVerified { get; set; }
 
-        [JsonProperty("Name")]
-        public string Name { get; set; }
+        [JsonProperty("FirstName")]
+        public string FirstName { get; set; }
+
+        [JsonProperty("LastName")]
+        public string LastName { get; set; }
 
         [JsonProperty("Birthdate")]
         public string Birthdate { get; set; }
@@ -34,6 +37,9 @@ namespace BuzzCurrency.Library.Models
 
         [JsonProperty("UserType")]
         public UserType UserType { get; set; }
+
+        [JsonProperty("UserTypeDescription")]
+        public string UserTypeDescription { get; set; }
 
         [JsonProperty("ImageUrl")]
         public string ImageUrl { get; set; }
