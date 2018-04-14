@@ -5,52 +5,52 @@ namespace BuzzCurrency.Library.Models
 {
     public class UserProfile
     {
-        [JsonProperty("Email")]
+        [JsonProperty("email")]
         public string Email { get; set; }
 
-        [JsonProperty("EmailVerified")]
+        [JsonProperty("emailVerified")]
         public bool EmailVerified { get; set; }
 
-        [JsonProperty("FirstName")]
+        [JsonProperty("firstName")]
         public string FirstName { get; set; }
 
-        [JsonProperty("LastName")]
+        [JsonProperty("lastName")]
         public string LastName { get; set; }
 
-        [JsonProperty("Birthdate")]
+        [JsonProperty("birthdate")]
         public string Birthdate { get; set; }
 
-        [JsonProperty("PhoneNumber")]
+        [JsonProperty("phoneNumber")]
         public string PhoneNumber { get; set; }
 
-        [JsonProperty("PhoneNumberVerified")]
+        [JsonProperty("phoneNumberVerified")]
         public bool PhoneNumberVerified { get; set; }
 
-        [JsonProperty("Gender")]
+        [JsonProperty("gender")]
         public string Gender { get; set; }
 
-        [JsonProperty("Address")]
+        [JsonProperty("address")]
         public string Address { get; set; }
 
-        [JsonProperty("Country")]
+        [JsonProperty("country")]
         public string Country { get; set; }
 
-        [JsonProperty("UserType")]
+        [JsonProperty("userType")]
         public UserType UserType { get; set; }
 
-        [JsonProperty("UserTypeDescription")]
+        [JsonProperty("userTypeDescription")]
         public string UserTypeDescription { get; set; }
 
-        [JsonProperty("ImageUrl")]
+        [JsonProperty("imageUrl")]
         public string ImageUrl { get; set; }
 
-        [JsonProperty("Active")]
+        [JsonProperty("active")]
         public bool Active { get; set; }
 
-        [JsonProperty("CreatedOn")]
+        [JsonProperty("createdOn")]
         public string CreatedOn { get; set; }
 
-        [JsonProperty("ModifiedOn")]
+        [JsonProperty("modifiedOn")]
         public string ModifiedOn { get; set; }
     }
 }

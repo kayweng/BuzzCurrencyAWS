@@ -263,3 +263,5 @@ __pycache__/
 /BuzzCurrencyAWS/UserProfileServerless
 /BuzzCurrencyAWS/UserProfileServerless.Tests
 /BuzzCurrencyAWS/AWSServerless1
+
+*.csproj
