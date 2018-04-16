@@ -2,6 +2,7 @@
 using AWSSimpleClients.Clients;
 using BuzzCurrency.Library.Consts;
 using BuzzCurrency.Library.Enums;
+using BuzzCurrency.Library.Helpers;
 using BuzzCurrency.Library.Models;
 using BuzzCurrency.Repository.Interfaces;
 using System;
@@ -90,7 +91,7 @@ namespace BuzzCurrency.Repository
                     if (document.ContainsKey("UserType"))
                     {
                         user.UserType = (UserType)Enum.Parse(typeof(UserType), document["UserType"].AsString());
-                        user.UserTypeDescription = user.UserType.ToString();
+                        user.UserTypeDescription = EnumHelper.GetDescription<UserType>(user.UserType).ToString();
                     }
 
                     if (document.ContainsKey("ImageUrl"))
