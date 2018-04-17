@@ -20,11 +20,11 @@ namespace BuzzCurrency.Library.Models
         [JsonProperty("birthdate")]
         public string Birthdate { get; set; }
 
-        [JsonProperty("phoneNumber")]
-        public string PhoneNumber { get; set; }
+        [JsonProperty("mobile")]
+        public string Mobile { get; set; }
 
-        [JsonProperty("phoneNumberVerified")]
-        public bool PhoneNumberVerified { get; set; }
+        [JsonProperty("mobileVerified")]
+        public bool MobileVerified { get; set; }
 
         [JsonProperty("gender")]
         public string Gender { get; set; }

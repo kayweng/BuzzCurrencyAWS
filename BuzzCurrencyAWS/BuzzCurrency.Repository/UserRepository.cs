@@ -63,14 +63,14 @@ namespace BuzzCurrency.Repository
                         user.Birthdate = document["Birthdate"].AsString();
                     }
 
-                    if (document.ContainsKey("PhoneNumber"))
+                    if (document.ContainsKey("Mobile"))
                     {
-                        user.PhoneNumber = document["PhoneNumber"].AsString();
+                        user.Mobile = document["Mobile"].AsString();
                     }
 
-                    if (document.ContainsKey("PhoneNumberVerified"))
+                    if (document.ContainsKey("MobileVerified"))
                     {
-                        user.PhoneNumberVerified = document["PhoneNumberVerified"].AsBoolean();
+                        user.MobileVerified = document["MobileVerified"].AsBoolean();
                     }
 
                     if (document.ContainsKey("Gender"))
@@ -116,7 +116,6 @@ namespace BuzzCurrency.Repository
 
                     return user;
                 }
-
             }
             catch (Exception ex)
             {

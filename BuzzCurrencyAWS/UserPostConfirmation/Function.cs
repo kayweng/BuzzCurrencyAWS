@@ -65,8 +65,8 @@ namespace BuzzCurrency.UserPostConfirmation
                         ["EmailVerified"] = new AttributeValue() { BOOL = attributes.CognitoUser_Status == "CONFIRMED" ? true : false },
                         ["FirstName"] = new AttributeValue() { S = attributes.Name.Split(' ')[0] },
                         ["LastName"] = new AttributeValue() { S = attributes.Name.Split(' ')[1] },
-                        ["PhoneNumber"] = new AttributeValue() { S = attributes.Phone_Number },
-                        ["PhoneNumberVerified"] = new AttributeValue() { BOOL = attributes.Phone_Number_Verified == "true" ? true : false },
+                        ["Mobile"] = new AttributeValue() { S = attributes.Phone_Number },
+                        ["MobileVerified"] = new AttributeValue() { BOOL = attributes.Phone_Number_Verified == "true" ? true : false },
                         ["Birthdate"] = new AttributeValue() { S = attributes.Birthdate.ToString() },
                         ["Gender"] = new AttributeValue() { S = EMPTY_STRING },
                         ["Address"] = new AttributeValue() { S = EMPTY_STRING },
@@ -86,7 +86,7 @@ namespace BuzzCurrency.UserPostConfirmation
 
                     if (response.HttpStatusCode != System.Net.HttpStatusCode.OK && response.HttpStatusCode != System.Net.HttpStatusCode.Accepted)
                     {
-                        throw new Exception(string.Format("Failed to create confirmed user - {0}", userAttributes["Email"].S.ToString()));
+                        throw new Exception(string.Format("Failed to create a confirmed user - {0}", userAttributes["Email"].S.ToString()));
                     }
                 }
                 catch (AmazonDynamoDBException exception)
