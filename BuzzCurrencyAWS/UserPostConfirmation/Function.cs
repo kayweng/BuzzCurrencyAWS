@@ -74,8 +74,8 @@ namespace BuzzCurrency.UserPostConfirmation
                         ["UserType"] = new AttributeValue() { S = UserType.Confirmed.ToString() },
                         ["ImageUrl"] = new AttributeValue() { S = EMPTY_STRING },
                         ["Active"] = new AttributeValue() { BOOL = true },
-                        ["CreatedOn"] = new AttributeValue() { S = DateTime.UtcNow.ToShortDateString() },
-                        ["ModifiedOn"] = new AttributeValue() { S = DateTime.UtcNow.ToShortDateString() }
+                        ["CreatedOn"] = new AttributeValue() { S = DateTime.UtcNow.ToLongDateString() },
+                        ["ModifiedOn"] = new AttributeValue() { S = DateTime.UtcNow.ToLongDateString() }
                     };
 
                     var response = AWS.DynamoDB.PutItemAsync(new PutItemRequest()

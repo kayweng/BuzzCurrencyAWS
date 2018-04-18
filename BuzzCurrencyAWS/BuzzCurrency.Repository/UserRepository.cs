@@ -1,11 +1,12 @@
-﻿using Amazon.DynamoDBv2.DocumentModel;
-using AWSSimpleClients.Clients;
+﻿using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using BuzzCurrency.Library.Consts;
-using BuzzCurrency.Library.Enums;
-using BuzzCurrency.Library.Helpers;
 using BuzzCurrency.Library.Models;
 using BuzzCurrency.Repository.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace BuzzCurrency.Repository
 {
@@ -13,6 +14,7 @@ namespace BuzzCurrency.Repository
     public class UserRepository : BaseRepository, IUserRepository
     {
         public static UserRepository _instance = new UserRepository();
+        IDynamoDBContext DDBContext { get; set; }
         Table table;
 
         public static UserRepository Instance
@@ -25,104 +27,25 @@ namespace BuzzCurrency.Repository
 
         public UserRepository()
         {
-            table = Table.LoadTable(AWS.DynamoDB, DynamoTables.Users);
+            var config = new DynamoDBContextConfig { Conversion = DynamoDBEntryConversion.V2 };
+
+            AWSConfigsDynamoDB.Context.TypeMappings[typeof(UserProfile)] = new Amazon.Util.TypeMapping(typeof(UserProfile), DynamoTables.Users);
+
+            DDBContext = new DynamoDBContext(new AmazonDynamoDBClient(), config);
         }
 
-        public UserProfile RetrieveUser(string username)
+        public async Task<UserProfile> RetrieveUser(string username)
         {
             try
             {
-                Document document = table.GetItemAsync(username).GetAwaiter().GetResult();
+                var user = await DDBContext.LoadAsync<UserProfile>(username);
 
-                if (document != null)
-                {
-                    var user = new UserProfile();
-
-                    if (document.ContainsKey("Email"))
-                    {
-                        user.Email = document["Email"].AsString();
-                    }
-
-                    if (document.ContainsKey("EmailVerified"))
-                    {
-                        user.EmailVerified = document["EmailVerified"].AsBoolean();
-                    }
-
-                    if (document.ContainsKey("FirstName"))
-                    {
-                        user.FirstName = document["FirstName"].AsString();
-                    }
-
-                    if (document.ContainsKey("LastName"))
-                    {
-                        user.LastName = document["LastName"].AsString();
-                    }
-
-                    if (document.ContainsKey("Birthdate"))
-                    {
-                        user.Birthdate = document["Birthdate"].AsString();
-                    }
-
-                    if (document.ContainsKey("Mobile"))
-                    {
-                        user.Mobile = document["Mobile"].AsString();
-                    }
-
-                    if (document.ContainsKey("MobileVerified"))
-                    {
-                        user.MobileVerified = document["MobileVerified"].AsBoolean();
-                    }
-
-                    if (document.ContainsKey("Gender"))
-                    {
-                        user.Gender = document["Gender"].AsString();
-                    }
-
-                    if (document.ContainsKey("Address"))
-                    {
-                        user.Address = document["Address"].AsString();
-                    }
-
-                    if (document.ContainsKey("Country"))
-                    {
-                        user.Country = document["Country"].AsString();
-                    }
-
-                    if (document.ContainsKey("UserType"))
-                    {
-                        user.UserType = (UserType)Enum.Parse(typeof(UserType), document["UserType"].AsString());
-                        user.UserTypeDescription = EnumHelper.GetDescription<UserType>(user.UserType).ToString();
-                    }
-
-                    if (document.ContainsKey("ImageUrl"))
-                    {
-                        user.ImageUrl = document["ImageUrl"].AsString();
-                    }
-
-                    if (document.ContainsKey("Active"))
-                    {
-                        user.Active = document["Active"].AsBoolean();
-                    }
-
-                    if (document.ContainsKey("CreatedOn"))
-                    {
-                        user.CreatedOn = document["CreatedOn"].AsString();
-                    }
-
-                    if (document.ContainsKey("ModifiedOn"))
-                    {
-                        user.ModifiedOn = document["ModifiedOn"].AsString();
-                    }
-
-                    return user;
-                }
+                return user;
             }
             catch (Exception ex)
             {
                 throw ex;
-            }  
-            
-            return null;
+            } 
         }
 
         public bool UpdateUser(UserProfile username)

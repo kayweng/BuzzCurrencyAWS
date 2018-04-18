@@ -42,12 +42,12 @@ namespace BuzzCurrency.Serverless.User
 
         #region API Methods
         /// <summary>
-        /// Retrieve user information by username (email)
+        /// Retrieve buzz currency user async
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
+        public async Task<APIGatewayProxyResponse> GetUserAsync(APIGatewayProxyRequest request, ILambdaContext context)
         {
             string username = null;
 
@@ -58,7 +58,7 @@ namespace BuzzCurrency.Serverless.User
 
             if(!string.IsNullOrEmpty(username))
             {
-                var user = UserRepository.Instance.RetrieveUser(username);
+                var user = await UserRepository.Instance.RetrieveUser(username);
 
                 if (user != null)
                 {
@@ -76,23 +76,6 @@ namespace BuzzCurrency.Serverless.User
                 StatusCode = (int)HttpStatusCode.NotFound
             };
         }
-
-        public APIGatewayProxyResponse Post(APIGatewayProxyRequest request, ILambdaContext context)
-        {
-            Console.WriteLine("Post");
-            Console.WriteLine(context);
-            Console.WriteLine(request);
-
-            var response = new APIGatewayProxyResponse
-            {
-                StatusCode = (int)HttpStatusCode.OK,
-                Body = "Update User Detail",
-                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } }
-            };
-
-            return response;
-        }
-
         #endregion
     }
 }

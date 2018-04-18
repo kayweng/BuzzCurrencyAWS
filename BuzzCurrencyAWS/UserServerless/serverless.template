@@ -1,18 +1,72 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Transform" : "AWS::Serverless-2016-10-31",
-  "Description" : "Buzz currency APIs",
+  "Description" : "Serverless application for user profile",
+
+	"Parameters" : {
+		"ShouldCreateTable" : {
+			"Type" : "String",        
+			"AllowedValues" : ["true", "false"],
+			"Description" : "If true then the DynamoDB blogging table will be created with the CloudFormation stack.",
+			"Default" : "false"
+		},  
+		"UserTableName" : {
+			"Type" : "String",
+			"Description" : "Name of DynamoDB table used to store the user profile. If left blank a new table will be created.",
+			"MinLength" : "0"
+		},
+		"ReadCapacity" : {
+			"Type" : "Number",
+			"Description" : "Read capacity for the DynamoDB table.",
+			"Default" : "3",
+			"MinValue" : 1
+		},
+		"WriteCapacity" : {
+			"Type" : "Number",
+			"Description" : "Write capacity for the DynamoDB table.",
+			"Default" : "3",
+			"MinValue" : 1
+		},
+		"AccessKey" : {
+			"Type": "String",
+			"Description" : "AWS access key to resources",
+			"MinLength":  0
+		},
+		"SecretKey" : {
+			"Type": "String",
+			"Description" : "AWS secret key to resources",
+			"MinLength":  0
+		},
+		"Region" : {
+			"Type": "String",
+			"Description" : "AWS region",
+			"Default" : "ap-southeast-1"
+		}
+	},
+
+  "Conditions" : {
+	"CreateUserTable" : {"Fn::Equals" : [{"Ref" : "ShouldCreateTable"}, "true"]},
+	"TableNameGenerated" : {"Fn::Equals" : [{"Ref" : "UserTableName"}, ""]}
+  },
+
   "Resources" : {
-    "GetUser" : {
-      "Type" : "AWS::Serverless::Function",
+	"GetUser" : {
+	  "Type" : "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "BuzzCurrency.Serverless::BuzzCurrency.Serverless.User.Functions::Get",
+        "Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::Get",
         "Runtime": "dotnetcore2.0",
         "CodeUri": "",
         "MemorySize": 128,
         "Timeout": 30,
         "Role": null,
-        "Policies": [ "AWSLambdaBasicExecutionRole" ],
+        "Policies": [ "AWSLambdaFullAccess" ],
+		"Environment" : {
+			"Variables" : {
+				"accessKey": {"Ref" : "AccessKey"},
+				"secretKey": {"Ref" : "SecretKey"},
+				"region": {"Ref" : "Region"}
+			}
+		},
         "Events": {
           "PutResource": {
             "Type": "Api",
@@ -23,6 +77,24 @@
           }
         }
       }
+    },
+
+	"BuzzCurrencyUsers" : {
+        "Type" : "AWS::DynamoDB::Table",
+        "Condition" : "CreateUserTable",
+        "Properties" : {
+            "TableName" : { "Fn::If" : ["TableNameGenerated", {"Ref" : "AWS::NoValue" }, { "Ref" : "UserTableName" } ] },
+            "AttributeDefinitions" : [
+              {"AttributeName" : "Email", "AttributeType" : "S"}
+            ],
+            "KeySchema"            : [
+              {"AttributeName" : "Email", "KeyType" : "HASH"}
+            ],
+            "ProvisionedThroughput" : {
+                "ReadCapacityUnits" : { "Ref" : "ReadCapacity" },
+                "WriteCapacityUnits" : { "Ref" : "WriteCapacity" }
+            }
+        }
     }
   },
 

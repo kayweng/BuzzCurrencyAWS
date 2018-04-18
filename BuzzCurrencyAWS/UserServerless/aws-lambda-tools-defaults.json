@@ -12,8 +12,8 @@
     "framework"     : "netcoreapp2.0",
     "s3-prefix"     : "BuzzCurrencyServerless/",
     "template"      : "serverless.template",
-    "template-parameters" : "",
+    "template-parameters" : "\"ShouldCreateTable\"=\"true\";\"UserTableName\"=\"BuzzCurrency-Users\";\"ReadCapacity\"=\"1\";\"WriteCapacity\"=\"1\";\"AccessKey\"=\"AKIAJVGWPWF47C2FCD4A\";\"SecretKey\"=\"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\";\"Region\"=\"ap-southeast-1\"",
     "s3-bucket"           : "dev.stack.buzzcurrency.com",
-    "stack-name"          : "BuzzCurrency-Serverless",
+    "stack-name"          : "BuzzCurrency-Serverless-User",
     "stack-wait"          : false
 }
