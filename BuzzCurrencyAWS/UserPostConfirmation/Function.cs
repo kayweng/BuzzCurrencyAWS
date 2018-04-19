@@ -5,7 +5,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using AWSSimpleClients.Clients;
-using BuzzCurrency.Library.Consts;
 using BuzzCurrency.Library.Enums;
 using BuzzCurrency.Logging;
 using Newtonsoft.Json;
@@ -20,6 +19,7 @@ namespace BuzzCurrency.UserPostConfirmation
         #region Properties
         const string ConfirmSignUp = "PostConfirmation_ConfirmSignUp";
         const string EMPTY_STRING = "-";
+        private string _tableName {get; set; }
 
         private RegionEndpoint _region { get; set; }
         private string _accessKey { get; set; }
@@ -33,6 +33,7 @@ namespace BuzzCurrency.UserPostConfirmation
             _region = RegionEndpoint.GetBySystemName(Environment.GetEnvironmentVariable("region"));
             _accessKey = Environment.GetEnvironmentVariable("accessKey");
             _secretKey = Environment.GetEnvironmentVariable("secretKey");
+            _tableName = Environment.GetEnvironmentVariable("tableName");
         }
 
         public Function(RegionEndpoint region, string accessKey, string secretKey)
@@ -80,7 +81,7 @@ namespace BuzzCurrency.UserPostConfirmation
 
                     var response = AWS.DynamoDB.PutItemAsync(new PutItemRequest()
                     {
-                        TableName = DynamoTables.Users,
+                        TableName = _tableName,
                         Item = userAttributes
                     }).GetAwaiter().GetResult();
 

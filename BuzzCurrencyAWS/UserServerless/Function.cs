@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -8,8 +7,6 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon;
 using AWSSimpleClients.Clients;
-using BuzzCurrency.Library.Consts;
-using Amazon.DynamoDBv2.Model;
 using Newtonsoft.Json;
 using BuzzCurrency.Repository;
 
@@ -21,6 +18,7 @@ namespace BuzzCurrency.Serverless.User
     public class Functions
     {
         #region Properties
+        public string _tableName { get; set; }
         private RegionEndpoint _region { get; set; }
         private string _accessKey { get; set; }
         private string _secretKey { get; set; }
@@ -35,6 +33,7 @@ namespace BuzzCurrency.Serverless.User
             _region = RegionEndpoint.GetBySystemName(Environment.GetEnvironmentVariable("region"));
             _accessKey = Environment.GetEnvironmentVariable("accessKey");
             _secretKey = Environment.GetEnvironmentVariable("secretKey");
+            _tableName = Environment.GetEnvironmentVariable("tableName");
 
             AWS.LoadAWSBasicCredentials(_region, _accessKey, _secretKey);
         }
@@ -58,7 +57,8 @@ namespace BuzzCurrency.Serverless.User
 
             if(!string.IsNullOrEmpty(username))
             {
-                var user = await UserRepository.Instance.RetrieveUser(username);
+                var repo = new UserRepository(_tableName);
+                var user = await repo.RetrieveUser(username);
 
                 if (user != null)
                 {

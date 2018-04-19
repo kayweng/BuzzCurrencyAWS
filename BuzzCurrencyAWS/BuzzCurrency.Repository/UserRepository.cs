@@ -2,7 +2,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
-using BuzzCurrency.Library.Consts;
 using BuzzCurrency.Library.Models;
 using BuzzCurrency.Repository.Interfaces;
 using System;
@@ -13,23 +12,14 @@ namespace BuzzCurrency.Repository
 
     public class UserRepository : BaseRepository, IUserRepository
     {
-        public static UserRepository _instance = new UserRepository();
         IDynamoDBContext DDBContext { get; set; }
         Table table;
 
-        public static UserRepository Instance
-        {
-            get
-            {
-                return _instance;
-            }
-        }
-
-        public UserRepository()
+        public UserRepository(string tableName)
         {
             var config = new DynamoDBContextConfig { Conversion = DynamoDBEntryConversion.V2 };
 
-            AWSConfigsDynamoDB.Context.TypeMappings[typeof(UserProfile)] = new Amazon.Util.TypeMapping(typeof(UserProfile), DynamoTables.Users);
+            AWSConfigsDynamoDB.Context.TypeMappings[typeof(UserProfile)] = new Amazon.Util.TypeMapping(typeof(UserProfile), tableName);
 
             DDBContext = new DynamoDBContext(new AmazonDynamoDBClient(), config);
         }

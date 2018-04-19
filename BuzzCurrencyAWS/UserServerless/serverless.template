@@ -53,7 +53,7 @@
 	"GetUser" : {
 	  "Type" : "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::Get",
+        "Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::GetUserAsync",
         "Runtime": "dotnetcore2.0",
         "CodeUri": "",
         "MemorySize": 128,
@@ -64,7 +64,8 @@
 			"Variables" : {
 				"accessKey": {"Ref" : "AccessKey"},
 				"secretKey": {"Ref" : "SecretKey"},
-				"region": {"Ref" : "Region"}
+				"region": {"Ref" : "Region"},
+				"tableName": {"Ref" : "UserTableName"}
 			}
 		},
         "Events": {

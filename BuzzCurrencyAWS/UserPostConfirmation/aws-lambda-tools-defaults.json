@@ -17,5 +17,5 @@
     "function-name"        : "BuzzCurrency-PostUserConfirmation",
     "function-role"        : "arn:aws:iam::678822529170:role/lambda_basic_execution",
     "tracing-mode"         : "PassThrough",
-    "environment-variables" : "\"secretKey\"=\"AKIAJVGWPWF47C2FCD4A\";\"accessKey\"=\"WmTGyrNymNm7ctz3RzMeJeDOgVl8qEMe7o2pSrzA\";\"region\"=\"ap-southeast-1\""
+    "environment-variables" : "\"tableName\"=\"BuzzCurrency-Users\";\"accessKey\"=\"AKIAJVGWPWF47C2FCD4A\";\"secretKey\"=\"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\";\"region\"=\"ap-southeast-1\""
 }
