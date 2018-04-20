@@ -259,9 +259,3 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/BuzzCurrencyAWS/UserPostConfirmation/Enums/UserType.cs
-/BuzzCurrencyAWS/UserProfileServerless
-/BuzzCurrencyAWS/UserProfileServerless.Tests
-/BuzzCurrencyAWS/AWSServerless1
-
-*.csproj

@@ -66,7 +66,10 @@ namespace BuzzCurrency.Serverless.User
                     {
                         StatusCode = (int)HttpStatusCode.OK,
                         Body = JsonConvert.SerializeObject(user),
-                        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                        Headers = new Dictionary<string, string> {
+                            { "Content-Type", "application/json" },
+                            { "Access-Control-Allow-Origin", "*" }
+                        }
                     };
                 }
             }
