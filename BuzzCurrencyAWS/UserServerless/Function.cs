@@ -9,6 +9,10 @@ using Amazon;
 using AWSSimpleClients.Clients;
 using Newtonsoft.Json;
 using BuzzCurrency.Repository;
+using System.IO;
+using Amazon.S3.Transfer;
+using System.Text;
+using BuzzCurrency.Library.Helpers;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -22,6 +26,9 @@ namespace BuzzCurrency.Serverless.User
         private RegionEndpoint _region { get; set; }
         private string _accessKey { get; set; }
         private string _secretKey { get; set; }
+        private string _imageBucketName { get; set; }
+
+        private Dictionary<string, string> _responseHeader { get; set; }
         #endregion
 
         #region Constructor
@@ -34,6 +41,11 @@ namespace BuzzCurrency.Serverless.User
             _accessKey = Environment.GetEnvironmentVariable("accessKey");
             _secretKey = Environment.GetEnvironmentVariable("secretKey");
             _tableName = Environment.GetEnvironmentVariable("tableName");
+            _imageBucketName = Environment.GetEnvironmentVariable("userImageBucket");
+            _responseHeader = new Dictionary<string, string>() {
+                { "Content-Type", "application/json" },
+                { "Access-Control-Allow-Origin", "*" }
+            };
 
             AWS.LoadAWSBasicCredentials(_region, _accessKey, _secretKey);
         }
@@ -55,7 +67,7 @@ namespace BuzzCurrency.Serverless.User
                 username = request.PathParameters["username"].ToString();
             }
 
-            if(!string.IsNullOrEmpty(username))
+            if (!string.IsNullOrEmpty(username))
             {
                 var repo = new UserRepository(_tableName);
                 var user = await repo.RetrieveUser(username);
@@ -66,10 +78,7 @@ namespace BuzzCurrency.Serverless.User
                     {
                         StatusCode = (int)HttpStatusCode.OK,
                         Body = JsonConvert.SerializeObject(user),
-                        Headers = new Dictionary<string, string> {
-                            { "Content-Type", "application/json" },
-                            { "Access-Control-Allow-Origin", "*" }
-                        }
+                        Headers = _responseHeader
                     };
                 }
             }
@@ -77,6 +86,54 @@ namespace BuzzCurrency.Serverless.User
             return new APIGatewayProxyResponse
             {
                 StatusCode = (int)HttpStatusCode.NotFound
+            };
+        }
+
+        /// <summary>
+        /// Post upload user profile image to s3 bucket and return an image link for access.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public APIGatewayProxyResponse UploadProfileImage(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            MemoryStream ms = new MemoryStream();
+            TransferUtility utility = new TransferUtility(AWS.S3);
+            string username = null;
+
+            try
+            {
+                if (request.PathParameters.ContainsKey("username"))
+                {
+                    username = request.PathParameters["username"].ToString();
+
+                    var file = new TransferUtilityUploadRequest()
+                    {
+                        InputStream = new MemoryStream(Encoding.ASCII.GetBytes(request.Body)),
+                        BucketName = _imageBucketName,
+                        Key = username
+                    };
+
+                    utility.Upload(file);
+
+                    var response = new APIGatewayProxyResponse
+                    {
+                        StatusCode = (int)HttpStatusCode.OK,
+                        Body = file.FilePath,
+                        Headers = _responseHeader
+                    };
+
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogLine(ex.Message);
+            }
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest
             };
         }
         #endregion

@@ -1,48 +1,53 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Transform" : "AWS::Serverless-2016-10-31",
-  "Description" : "Serverless application for user profile",
+  "Description" : "Serverless application for user module",
 
-	"Parameters" : {
-		"ShouldCreateTable" : {
-			"Type" : "String",        
-			"AllowedValues" : ["true", "false"],
-			"Description" : "If true then the DynamoDB blogging table will be created with the CloudFormation stack.",
-			"Default" : "false"
-		},  
-		"UserTableName" : {
-			"Type" : "String",
-			"Description" : "Name of DynamoDB table used to store the user profile. If left blank a new table will be created.",
-			"MinLength" : "0"
-		},
-		"ReadCapacity" : {
-			"Type" : "Number",
-			"Description" : "Read capacity for the DynamoDB table.",
-			"Default" : "3",
-			"MinValue" : 1
-		},
-		"WriteCapacity" : {
-			"Type" : "Number",
-			"Description" : "Write capacity for the DynamoDB table.",
-			"Default" : "3",
-			"MinValue" : 1
-		},
-		"AccessKey" : {
-			"Type": "String",
-			"Description" : "AWS access key to resources",
-			"MinLength":  0
-		},
-		"SecretKey" : {
-			"Type": "String",
-			"Description" : "AWS secret key to resources",
-			"MinLength":  0
-		},
-		"Region" : {
-			"Type": "String",
-			"Description" : "AWS region",
-			"Default" : "ap-southeast-1"
-		}
+  "Parameters" : {
+	"ShouldCreateTable" : {
+		"Type" : "String",        
+		"AllowedValues" : ["true", "false"],
+		"Description" : "If true then the DynamoDB blogging table will be created with the CloudFormation stack.",
+		"Default" : "false"
+	},  
+	"UserTableName" : {
+		"Type" : "String",
+		"Description" : "Name of DynamoDB table used to store the user profile. If left blank a new table will be created.",
+		"MinLength" : "0"
 	},
+	"ReadCapacity" : {
+		"Type" : "Number",
+		"Description" : "Read capacity for the DynamoDB table.",
+		"Default" : "3",
+		"MinValue" : 1
+	},
+	"WriteCapacity" : {
+		"Type" : "Number",
+		"Description" : "Write capacity for the DynamoDB table.",
+		"Default" : "3",
+		"MinValue" : 1
+	},
+	"AccessKey" : {
+		"Type": "String",
+		"Description" : "AWS access key to resources",
+		"MinLength":  0
+	},
+	"SecretKey" : {
+		"Type": "String",
+		"Description" : "AWS secret key to resources",
+		"MinLength":  0
+	},
+	"Region" : {
+		"Type": "String",
+		"Description" : "AWS region",
+		"Default" : "ap-southeast-1"
+	},
+	"UserImageBucketName": {
+		"Type": "String",
+		"Description" : "UserProfile Image Bucket Name",
+		"Default" : "dev.image.buzzcurrency.com"
+	}
+  },
 
   "Conditions" : {
 	"CreateUserTable" : {"Fn::Equals" : [{"Ref" : "ShouldCreateTable"}, "true"]},
@@ -50,23 +55,62 @@
   },
 
   "Resources" : {
-	"GetUser" : {
-	  "Type" : "AWS::Serverless::Function",
-      "Properties": {
-        "Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::GetUserAsync",
-        "Runtime": "dotnetcore2.0",
-        "CodeUri": "",
-        "MemorySize": 128,
-        "Timeout": 30,
-        "Role": null,
-        "Policies": [ "AWSLambdaFullAccess" ],
-		"Environment" : {
-			"Variables" : {
-				"accessKey": {"Ref" : "AccessKey"},
-				"secretKey": {"Ref" : "SecretKey"},
-				"region": {"Ref" : "Region"},
-				"tableName": {"Ref" : "UserTableName"}
-			}
+	"BuzzCurrencyUserRestApi":{
+		"Type" : "AWS::ApiGateway::RestApi",
+		"Properties" : {}
+	},
+
+	"ApiUserResource": {
+		"Type" : "AWS::ApiGateway::Resource",
+		"Properties" : {
+			"RestApiId": { "Ref": "BuzzCurrencyUserRestApi" },
+			"ParentId": { "Fn::GetAtt": ["BuzzCurrencyUserRestApi", "RootResourceId"] },
+			"PathPart": "user"
+		 },
+		 "DependsOn" : "BuzzCurrencyUserRestApi"
+	},
+
+	"ApiGatewayAuthorizer": {
+		"Type" : "AWS::ApiGateway::Authorizer",
+		 "Properties": {
+			"Type": "COGNITO_USER_POOLS",
+			"ProviderARNs": ["arn:aws:cognito-idp:ap-southeast-1:678822529170:userpool/ap-southeast-1_xNdr3g62r"],
+			"Name": "CognitoAuth",
+			"IdentitySource": "method.request.header.Auth",
+			"RestApiId": { "Ref": "BuzzCurrencyUserRestApi" }
+		  },
+		  "DependsOn" : "BuzzCurrencyUserRestApi"
+	},
+
+	"EmptyModel" :{
+		"Type" : "AWS::ApiGateway::Model",
+		"Properties" : {
+			"Name" : "EmptyModel",
+			"ContentType" : "application/json",
+			"Schema" : {},
+			"RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
+		},
+		"DependsOn" : "BuzzCurrencyUserRestApi"
+	},
+
+	"GetUserAsync" : {
+		"DependsOn" : "BuzzCurrencyUserRestApi",
+		"Type" : "AWS::Serverless::Function",
+		"Properties": {
+			"Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::GetUserAsync",
+			"Runtime": "dotnetcore2.0",
+			"CodeUri": "",
+			"MemorySize": 128,
+			"Timeout": 30,
+			"Role": null,
+			"Policies": [ "AWSLambdaFullAccess" ],
+			"Environment" : {
+				"Variables" : {
+					"accessKey": {"Ref" : "AccessKey"},
+					"secretKey": {"Ref" : "SecretKey"},
+					"region": {"Ref" : "Region"},
+					"tableName": {"Ref" : "UserTableName"}
+				}
 		},
         "Events": {
           "PutResource": {
@@ -79,6 +123,36 @@
         }
       }
     },
+	"PostUserImage": {
+		"DependsOn" : "BuzzCurrencyUserRestApi",
+		"Type" : "AWS::Serverless::Function",
+		"Properties": {
+			"Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::UploadProfileImage",
+			"Runtime": "dotnetcore2.0",
+			"CodeUri": "",
+			"MemorySize": 128,
+			"Timeout": 30,
+			"Role": null,
+			"Policies": [ "AWSLambdaFullAccess" ],
+			"Environment" : {
+				"Variables" : {
+					"accessKey": {"Ref" : "AccessKey"},
+					"secretKey": {"Ref" : "SecretKey"},
+					"region": {"Ref" : "Region"},
+					"userImageBucket": {"Ref" : "UserImageBucketName"}
+				}
+			},
+			"Events": {
+			  "PutResource": {
+				"Type": "Api",
+				"Properties": {
+				  "Path": "/user/images/",
+				  "Method": "POST"
+				}
+			  }
+			}
+		}
+	},
 
 	"BuzzCurrencyUsers" : {
         "Type" : "AWS::DynamoDB::Table",
