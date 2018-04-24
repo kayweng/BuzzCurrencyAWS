@@ -4,12 +4,11 @@
   "Description" : "Serverless application for user module",
 
   "Parameters" : {
-	"ShouldCreateTable" : {
-		"Type" : "String",        
-		"AllowedValues" : ["true", "false"],
-		"Description" : "If true then the DynamoDB blogging table will be created with the CloudFormation stack.",
-		"Default" : "false"
-	},  
+	 "CognitoUserPoolArn" : {
+	     "Type" : "String",
+		 "Description": "Cognito User Pool ARN",
+		 "Default": "arn:aws:cognito-idp:ap-southeast-1:678822529170:userpool/ap-southeast-1_xNdr3g62r"
+	 },
 	"UserTableName" : {
 		"Type" : "String",
 		"Description" : "Name of DynamoDB table used to store the user profile. If left blank a new table will be created.",
@@ -49,52 +48,75 @@
 	}
   },
 
-  "Conditions" : {
-	"CreateUserTable" : {"Fn::Equals" : [{"Ref" : "ShouldCreateTable"}, "true"]},
-	"TableNameGenerated" : {"Fn::Equals" : [{"Ref" : "UserTableName"}, ""]}
-  },
-
   "Resources" : {
-	"BuzzCurrencyUserRestApi":{
-		"Type" : "AWS::ApiGateway::RestApi",
-		"Properties" : {}
-	},
+	"BuzzCurrencyUserRestApi": {
+        "Type": "AWS::ApiGateway::RestApi",
+        "Properties": {
+			"Name" : "BuzzCurrencyUser",
+            "Body": {
+                "info": {
+                    "version": "1.0",
+                    "title": {
+                        "Ref": "AWS::StackName"
+                    }
+                },
+                "swagger": "2.0"
+            }
+        }
+    },
 
-	"ApiUserResource": {
-		"Type" : "AWS::ApiGateway::Resource",
-		"Properties" : {
-			"RestApiId": { "Ref": "BuzzCurrencyUserRestApi" },
-			"ParentId": { "Fn::GetAtt": ["BuzzCurrencyUserRestApi", "RootResourceId"] },
-			"PathPart": "user"
-		 },
-		 "DependsOn" : "BuzzCurrencyUserRestApi"
-	},
+	"CognitoAuthorizer": {
+        "Type": "AWS::ApiGateway::Authorizer",
+        "Properties": {
+            "Type": "COGNITO_USER_POOLS",
+            "IdentitySource": "method.request.header.Authorization",
+            "Name": "CognitoAuthorizer",
+            "ProviderARNs": [
+                { "Ref": "CognitoUserPoolArn" }
+            ],
+            "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
+        }
+    },
 
-	"ApiGatewayAuthorizer": {
-		"Type" : "AWS::ApiGateway::Authorizer",
-		 "Properties": {
-			"Type": "COGNITO_USER_POOLS",
-			"ProviderARNs": ["arn:aws:cognito-idp:ap-southeast-1:678822529170:userpool/ap-southeast-1_xNdr3g62r"],
-			"Name": "CognitoAuth",
-			"IdentitySource": "method.request.header.Auth",
-			"RestApiId": { "Ref": "BuzzCurrencyUserRestApi" }
-		  },
-		  "DependsOn" : "BuzzCurrencyUserRestApi"
-	},
-
-	"EmptyModel" :{
-		"Type" : "AWS::ApiGateway::Model",
-		"Properties" : {
-			"Name" : "EmptyModel",
+	"EmptyModel" : {
+	     "Type" : "AWS::ApiGateway::Model",
+	     "Properties" : {
+			"Name" : "Empty",
 			"ContentType" : "application/json",
+			"Description" : "Empty response with empty body",
 			"Schema" : {},
 			"RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
-		},
-		"DependsOn" : "BuzzCurrencyUserRestApi"
+	     }
+	 },
+
+	"UserResource" : {
+	    "Type" : "AWS::ApiGateway::Resource",
+	    "Properties" : {
+	        "ParentId" : { "Fn::GetAtt": ["BuzzCurrencyUserRestApi", "RootResourceId"] },
+	        "PathPart" : "user",
+	        "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
+	    }
+	},
+
+	"UserNameResource" : {
+	    "Type" : "AWS::ApiGateway::Resource",
+	    "Properties" : {
+	        "ParentId" : { "Ref": "UserResource" },
+	        "PathPart" : "{username}",
+	        "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
+	    }
+	},
+
+	"ImageResource" : {
+	    "Type" : "AWS::ApiGateway::Resource",
+	    "Properties" : {
+	        "ParentId" : { "Ref": "UserResource" },
+	        "PathPart" : "image",
+	        "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
+	    }
 	},
 
 	"GetUserAsync" : {
-		"DependsOn" : "BuzzCurrencyUserRestApi",
 		"Type" : "AWS::Serverless::Function",
 		"Properties": {
 			"Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::GetUserAsync",
@@ -104,6 +126,7 @@
 			"Timeout": 30,
 			"Role": null,
 			"Policies": [ "AWSLambdaFullAccess" ],
+			"FunctionName" : "BuzzCurrency-GetUser",
 			"Environment" : {
 				"Variables" : {
 					"accessKey": {"Ref" : "AccessKey"},
@@ -123,8 +146,47 @@
         }
       }
     },
+
+	"OptionsApi" : {
+	    "Type" : "AWS::ApiGateway::Method",
+	    "Properties" : {
+			"AuthorizationType" : "NONE",
+	        "HttpMethod" : "OPTIONS",
+	        "ResourceId" : { "Ref": "UserResource" },
+	        "RestApiId"  : { "Ref": "BuzzCurrencyUserRestApi" },
+			"Integration" : {
+				"IntegrationResponses": [ 
+					{
+						"StatusCode" : "200",
+						"ResponseParameters" : {
+							"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+							"method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+							"method.response.header.Access-Control-Allow-Origin": "'*'"
+						},
+						"ResponseTemplates" : {
+							"application/json": { "Ref": "EmptyModel" }
+						}
+					}
+				],
+				"Type" : "MOCK"
+			}, 
+			"MethodResponses" : [
+				{
+					"StatusCode" : "200",
+					"ResponseModels" : {
+						"application/json": { "Ref": "EmptyModel" }
+					},
+					"ResponseParameters": {
+						"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+						"method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+						"method.response.header.Access-Control-Allow-Origin": "'*'"
+					}
+				}
+			]
+	    }
+	},
+
 	"PostUserImage": {
-		"DependsOn" : "BuzzCurrencyUserRestApi",
 		"Type" : "AWS::Serverless::Function",
 		"Properties": {
 			"Handler": "BuzzCurrency.Serverless.User::BuzzCurrency.Serverless.User.Functions::UploadProfileImage",
@@ -134,6 +196,7 @@
 			"Timeout": 30,
 			"Role": null,
 			"Policies": [ "AWSLambdaFullAccess" ],
+			"FunctionName" : "BuzzCurrency-UploadUserImage",
 			"Environment" : {
 				"Variables" : {
 					"accessKey": {"Ref" : "AccessKey"},
@@ -146,31 +209,13 @@
 			  "PutResource": {
 				"Type": "Api",
 				"Properties": {
-				  "Path": "/user/images/",
-				  "Method": "POST"
+					"Path": "/user/images/",
+					"Method": "POST"				 
 				}
 			  }
 			}
 		}
-	},
-
-	"BuzzCurrencyUsers" : {
-        "Type" : "AWS::DynamoDB::Table",
-        "Condition" : "CreateUserTable",
-        "Properties" : {
-            "TableName" : { "Fn::If" : ["TableNameGenerated", {"Ref" : "AWS::NoValue" }, { "Ref" : "UserTableName" } ] },
-            "AttributeDefinitions" : [
-              {"AttributeName" : "Email", "AttributeType" : "S"}
-            ],
-            "KeySchema"            : [
-              {"AttributeName" : "Email", "KeyType" : "HASH"}
-            ],
-            "ProvisionedThroughput" : {
-                "ReadCapacityUnits" : { "Ref" : "ReadCapacity" },
-                "WriteCapacityUnits" : { "Ref" : "WriteCapacity" }
-            }
-        }
-    }
+	}
   },
 
   "Outputs" : {
