@@ -164,7 +164,7 @@
 		}
 	},
 
-	"OptionMethod" : {
+	"UserOptionMethod" : {
 	    "Type" : "AWS::ApiGateway::Method",
 	    "Properties" : {
 			"AuthorizationType" : "NONE",
@@ -172,16 +172,19 @@
 	        "ResourceId" : { "Ref": "UserNameResource" },
 	        "RestApiId"  : { "Ref": "BuzzCurrencyUserRestApi" },
 			"Integration" : {
+				"RequestTemplates" : {
+					"application/json": "{\"statusCode\": 200 }"
+				},
 				"IntegrationResponses": [ 
 					{
-						"StatusCode" : "200",
+						"StatusCode" : 200,
+						"ResponseTemplates" : {
+							"application/json": "{\"statusCode\": 200 }"
+						},
 						"ResponseParameters" : {
 							"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-							"method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+							"method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
 							"method.response.header.Access-Control-Allow-Origin": "'*'"
-						},
-						"ResponseTemplates" : {
-							"application/json": { "Ref": "EmptyModel" }
 						}
 					}
 				],
@@ -189,13 +192,56 @@
 			}, 
 			"MethodResponses" : [
 				{
-					"StatusCode" : "200",
+					"StatusCode" : 200,
 					"ResponseModels" : {
 						"application/json": { "Ref": "EmptyModel" }
 					},
 					"ResponseParameters": {
 						"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-						"method.response.header.Access-Control-Allow-Methods": "'GET,POST,OPTIONS'",
+						"method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+						"method.response.header.Access-Control-Allow-Origin": "'*'"
+					}
+				}
+			]
+	    }
+	},
+
+	"UserImageOptionMethod" : {
+	    "Type" : "AWS::ApiGateway::Method",
+	    "Properties" : {
+			"AuthorizationType" : "NONE",
+	        "HttpMethod" : "OPTIONS",
+	        "ResourceId" : { "Ref": "ImageResource" },
+	        "RestApiId"  : { "Ref": "BuzzCurrencyUserRestApi" },
+			"Integration" : {
+				 "RequestTemplates" : {
+					"application/json": "{\"statusCode\": 200 }"
+				 },
+				"IntegrationResponses": [ 
+					{
+						"StatusCode" : 200,
+						 "ResponseTemplates" : {
+							"application/json": "{\"statusCode\": 200 }"
+						 },
+						"ResponseParameters" : {
+							"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+							"method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
+							"method.response.header.Access-Control-Allow-Origin": "'*'"
+						}
+
+					}
+				],
+				"Type" : "MOCK"
+			}, 
+			"MethodResponses" : [
+				{
+					"StatusCode" : 200,
+					"ResponseModels" : {
+						"application/json": { "Ref": "EmptyModel" }
+					},
+					"ResponseParameters": {
+						"method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+						"method.response.header.Access-Control-Allow-Methods": "'POST,OPTIONS'",
 						"method.response.header.Access-Control-Allow-Origin": "'*'"
 					}
 				}
