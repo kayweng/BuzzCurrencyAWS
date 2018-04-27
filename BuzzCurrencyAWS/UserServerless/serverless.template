@@ -90,19 +90,6 @@
 	     }
 	},
 	
-	"Deployment" : {
-	    "Type" : "AWS::ApiGateway::Deployment",
-	    "Properties" : {
-	        "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" },
-			"Description" : "Development",
-			"StageDescription" : {
-				"Description" : "Development",
-				"StageName" : "Development"
-			},
-			"StageName" : "Development"
-	    }
-	},
-
 	"UserResource" : {
 	    "Type" : "AWS::ApiGateway::Resource",
 	    "Properties" : {
@@ -130,6 +117,15 @@
 	    }
 	},
 
+	"UserImageResource" : {
+	    "Type" : "AWS::ApiGateway::Resource",
+	    "Properties" : {
+	        "ParentId" : { "Ref": "ImageResource" },
+	        "PathPart" : "{username}",
+	        "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" }
+	    }
+	},
+
 	"UserGetMethod" : {
 		"DependsOn" : "UserNameResource",
 		"Type" : "AWS::ApiGateway::Method",
@@ -152,7 +148,7 @@
 		"Type" : "AWS::ApiGateway::Method",
 		"Properties" : {
 			"HttpMethod" : "POST",
-			"ResourceId" : { "Ref": "ImageResource" },
+			"ResourceId" : { "Ref": "UserImageResource" },
 			"RestApiId"  : { "Ref": "BuzzCurrencyUserRestApi" },
 			"AuthorizationType" : "COGNITO_USER_POOLS",
 			"AuthorizerId" : { "Ref": "CognitoAuthorizer" },
@@ -211,7 +207,7 @@
 	    "Properties" : {
 			"AuthorizationType" : "NONE",
 	        "HttpMethod" : "OPTIONS",
-	        "ResourceId" : { "Ref": "ImageResource" },
+	        "ResourceId" : { "Ref": "UserImageResource" },
 	        "RestApiId"  : { "Ref": "BuzzCurrencyUserRestApi" },
 			"Integration" : {
 				 "RequestTemplates" : {
@@ -246,6 +242,50 @@
 					}
 				}
 			]
+	    }
+	},
+
+	"Deployment" : {
+		"DependsOn" : "UserGetMethod",
+	    "Type" : "AWS::ApiGateway::Deployment",
+	    "Properties" : {
+	        "RestApiId" : { "Ref": "BuzzCurrencyUserRestApi" },
+			"Description" : "Development",
+			"StageDescription" : {
+				"Description" : "Development",
+				"StageName" : "Development"
+			},
+			"StageName" : "Development"
+	    }
+	},
+
+	"InvokeGetUserPermission" : {
+		"DependsOn" : "GetUserAsync",
+	    "Type" : "AWS::Lambda::Permission",
+	    "Properties" : {
+	        "Action" : "lambda:InvokeFunction",
+	        "FunctionName" : {
+				"Fn::GetAtt": [
+					"GetUserAsync",
+					"Arn"
+				]
+			},
+	        "Principal"    : "apigateway.amazonaws.com"
+	    }
+	},
+
+	"InvokePostUserImagePermission" : {
+		"DependsOn" : "PostUserImage",
+	    "Type" : "AWS::Lambda::Permission",
+	    "Properties" : {
+	        "Action" : "lambda:InvokeFunction",
+	        "FunctionName" : {
+				"Fn::GetAtt": [
+					"PostUserImage",
+					"Arn"
+				]
+			},
+	        "Principal"    : "apigateway.amazonaws.com"
 	    }
 	},
 
@@ -305,7 +345,7 @@
 			  "PutResource": {
 				"Type": "Api",
 				"Properties": {
-					"Path": "/user/images/",
+					"Path": "/user/images/{username}",
 					"Method": "POST"				 
 				}
 			  }

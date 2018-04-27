@@ -101,6 +101,8 @@ namespace BuzzCurrency.Serverless.User
             TransferUtility utility = new TransferUtility(AWS.S3);
             string username = null;
 
+            Console.WriteLine(request.PathParameters["username"]);
+            
             try
             {
                 if (request.PathParameters.ContainsKey("username"))
