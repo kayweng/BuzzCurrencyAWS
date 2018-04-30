@@ -13,6 +13,7 @@ using System.IO;
 using Amazon.S3.Transfer;
 using System.Text;
 using BuzzCurrency.Library.Helpers;
+using BuzzCurrency.Library.Models;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -90,6 +91,45 @@ namespace BuzzCurrency.Serverless.User
         }
 
         /// <summary>
+        /// Save user profile record in dynamo db.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async Task<APIGatewayProxyResponse> PostUserAsync(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string username = null;
+
+            if (request.PathParameters.ContainsKey("username"))
+            {
+                username = request.PathParameters["username"].ToString();
+            }
+
+            if (!string.IsNullOrEmpty(username))
+            {
+                var repo = new UserRepository(_tableName);
+                var user = JsonConvert.DeserializeObject<UserProfile>(request.Body);
+                
+                bool saved = await repo.SaveUser(user);
+
+                if (saved)
+                {
+                    return new APIGatewayProxyResponse()
+                    {
+                         StatusCode = (int)HttpStatusCode.OK,
+                         Body = JsonConvert.SerializeObject(user),
+                         Headers = _responseHeader
+                    };
+                }
+            }
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest
+            };
+        }
+
+        /// <summary>
         /// Post upload user profile image to s3 bucket and return an image link for access.
         /// </summary>
         /// <param name="request"></param>
@@ -101,8 +141,6 @@ namespace BuzzCurrency.Serverless.User
             TransferUtility utility = new TransferUtility(AWS.S3);
             string username = null;
 
-            Console.WriteLine(request.PathParameters["username"]);
-            
             try
             {
                 if (request.PathParameters.ContainsKey("username"))
@@ -113,7 +151,10 @@ namespace BuzzCurrency.Serverless.User
                     {
                         InputStream = new MemoryStream(Encoding.ASCII.GetBytes(request.Body)),
                         BucketName = _imageBucketName,
-                        Key = username
+                        Key = username + ".jpeg",
+                        CannedACL = Amazon.S3.S3CannedACL.PublicRead,
+                        ContentType = "image/jpeg",
+                        AutoCloseStream = true
                     };
 
                     utility.Upload(file);

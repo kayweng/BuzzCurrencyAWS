@@ -7,6 +7,6 @@ namespace BuzzCurrency.Repository.Interfaces
     {
         Task<UserProfile> RetrieveUser(string username);
 
-        bool UpdateUser(UserProfile username);
+        Task<bool> SaveUser(UserProfile userProfile);
     }
 }
