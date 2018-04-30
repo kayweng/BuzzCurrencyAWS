@@ -13,7 +13,11 @@ namespace BuzzCurrency.Repository
     public class UserRepository : BaseRepository, IUserRepository
     {
         IDynamoDBContext DDBContext { get; set; }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> origin/master
         public UserRepository(string tableName)
         {
             var config = new DynamoDBContextConfig { Conversion = DynamoDBEntryConversion.V2 };
@@ -37,9 +41,21 @@ namespace BuzzCurrency.Repository
             } 
         }
 
-        public bool UpdateUser(UserProfile username)
+        public async Task<bool> SaveUser(UserProfile userProfile)
         {
-            return true;
+            try
+            {
+                await DDBContext.SaveAsync(userProfile).ContinueWith(task =>
+                {
+                    return (task.Exception == null);
+                });
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }
