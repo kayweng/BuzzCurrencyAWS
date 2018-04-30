@@ -13,7 +13,6 @@ namespace BuzzCurrency.Repository
     public class UserRepository : BaseRepository, IUserRepository
     {
         IDynamoDBContext DDBContext { get; set; }
-        Table table;
 
         public UserRepository(string tableName)
         {

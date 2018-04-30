@@ -97,12 +97,9 @@ namespace BuzzCurrency.Serverless.User
         /// <returns></returns>
         public APIGatewayProxyResponse UploadProfileImage(APIGatewayProxyRequest request, ILambdaContext context)
         {
-            MemoryStream ms = new MemoryStream();
             TransferUtility utility = new TransferUtility(AWS.S3);
             string username = null;
 
-            Console.WriteLine(request.PathParameters["username"]);
-            
             try
             {
                 if (request.PathParameters.ContainsKey("username"))
@@ -111,13 +108,15 @@ namespace BuzzCurrency.Serverless.User
 
                     var file = new TransferUtilityUploadRequest()
                     {
-                        InputStream = new MemoryStream(Encoding.ASCII.GetBytes(request.Body)),
+                        InputStream = new MemoryStream(Encoding.UTF8.GetBytes(request.Body)),
                         BucketName = _imageBucketName,
-                        Key = username
+                        Key = username + ".jpg",
+                        ContentType = "image/jpeg"
+                        //CannedACL = Amazon.S3.S3CannedACL.PublicRead
                     };
 
                     utility.Upload(file);
-
+                           
                     var response = new APIGatewayProxyResponse
                     {
                         StatusCode = (int)HttpStatusCode.OK,
