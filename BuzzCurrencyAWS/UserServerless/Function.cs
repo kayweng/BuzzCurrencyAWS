@@ -148,18 +148,10 @@ namespace BuzzCurrency.Serverless.User
 
                     var file = new TransferUtilityUploadRequest()
                     {
-                        InputStream = new MemoryStream(Encoding.UTF8.GetBytes(request.Body)),
+                        InputStream = new MemoryStream(Encoding.ASCII.GetBytes(request.Body)),
                         BucketName = _imageBucketName,
-<<<<<<< HEAD
                         Key = username + ".jpg",
                         ContentType = "image/jpeg"
-                        //CannedACL = Amazon.S3.S3CannedACL.PublicRead
-=======
-                        Key = username + ".jpeg",
-                        CannedACL = Amazon.S3.S3CannedACL.PublicRead,
-                        ContentType = "image/jpeg",
-                        AutoCloseStream = true
->>>>>>> origin/master
                     };
 
                     utility.Upload(file);
