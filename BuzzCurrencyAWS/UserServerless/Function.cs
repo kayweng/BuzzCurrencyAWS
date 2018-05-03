@@ -142,20 +142,32 @@ namespace BuzzCurrency.Serverless.User
 
             try
             {
-                if (request.PathParameters.ContainsKey("username"))
+                byte[] data = Convert.FromBase64String(request.Body);
+
+                string decodedString = Encoding.UTF8.GetString(data);
+
+                Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(decodedString);
+
+                string dataString = dict["data"].ToString();
+
+                if (request.PathParameters.ContainsKey("username") 
+                    && !string.IsNullOrEmpty(dataString)
+                    && dataString.Split(',').Length == 2)
                 {
                     username = request.PathParameters["username"].ToString();
 
+                    Byte[] imageBytes = Convert.FromBase64String(dataString.Split(',')[1]);
+
                     var file = new TransferUtilityUploadRequest()
                     {
-                        InputStream = new MemoryStream(Encoding.ASCII.GetBytes(request.Body)),
+                        InputStream = new MemoryStream(imageBytes),
                         BucketName = _imageBucketName,
                         Key = username + ".jpg",
                         ContentType = "image/jpeg"
                     };
 
                     utility.Upload(file);
-                           
+
                     var response = new APIGatewayProxyResponse
                     {
                         StatusCode = (int)HttpStatusCode.OK,
