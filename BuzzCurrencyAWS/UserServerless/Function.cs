@@ -100,27 +100,40 @@ namespace BuzzCurrency.Serverless.User
         {
             string username = null;
 
-            if (request.PathParameters.ContainsKey("username"))
+            try
             {
-                username = request.PathParameters["username"].ToString();
-            }
-
-            if (!string.IsNullOrEmpty(username))
-            {
-                var repo = new UserRepository(_tableName);
-                var user = JsonConvert.DeserializeObject<UserProfile>(request.Body);
-                
-                bool saved = await repo.SaveUser(user);
-
-                if (saved)
+                if (request.PathParameters.ContainsKey("username"))
                 {
-                    return new APIGatewayProxyResponse()
-                    {
-                         StatusCode = (int)HttpStatusCode.OK,
-                         Body = JsonConvert.SerializeObject(user),
-                         Headers = _responseHeader
-                    };
+                    username = request.PathParameters["username"].ToString();
                 }
+
+                if (!string.IsNullOrEmpty(username))
+                {
+                    var repo = new UserRepository(_tableName);
+                    var user = JsonConvert.DeserializeObject<UserProfile>(request.Body);
+
+                    bool saved = await repo.SaveUser(user);
+
+                    if (saved)
+                    {
+                        return new APIGatewayProxyResponse()
+                        {
+                            StatusCode = (int)HttpStatusCode.OK,
+                            Body = JsonConvert.SerializeObject(user),
+                            Headers = _responseHeader
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogLine(ex.Message);
+
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Body = ex.Message
+                };
             }
 
             return new APIGatewayProxyResponse
@@ -163,7 +176,8 @@ namespace BuzzCurrency.Serverless.User
                         InputStream = new MemoryStream(imageBytes),
                         BucketName = _imageBucketName,
                         Key = username + ".jpg",
-                        ContentType = "image/jpeg"
+                        ContentType = "image/jpeg",
+                        CannedACL = Amazon.S3.S3CannedACL.AuthenticatedRead
                     };
 
                     utility.Upload(file);
@@ -181,6 +195,12 @@ namespace BuzzCurrency.Serverless.User
             catch (Exception ex)
             {
                 context.Logger.LogLine(ex.Message);
+
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Body = ex.Message
+                };
             }
 
             return new APIGatewayProxyResponse
