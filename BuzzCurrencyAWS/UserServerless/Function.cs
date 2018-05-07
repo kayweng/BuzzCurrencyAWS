@@ -112,7 +112,7 @@ namespace BuzzCurrency.Serverless.User
                     var repo = new UserRepository(_tableName);
                     var user = JsonConvert.DeserializeObject<UserProfile>(request.Body);
 
-                    bool saved = await repo.SaveUser(user);
+                    bool saved = await repo.UpdateUser(user);
 
                     if (saved)
                     {

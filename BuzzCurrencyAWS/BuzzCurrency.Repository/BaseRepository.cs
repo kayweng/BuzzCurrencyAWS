@@ -9,9 +9,9 @@ namespace BuzzCurrency.Repository
     public class BaseRepository
     {
         #region Properties
-        private RegionEndpoint _region { get; set; }
-        private string _accessKey { get; set; }
-        private string _secretKey { get; set; }
+        RegionEndpoint _region { get; set; }
+        string _accessKey { get; set; }
+        string _secretKey { get; set; }
         #endregion
 
         protected BaseRepository()
