@@ -116,10 +116,12 @@ namespace BuzzCurrency.Serverless.User
 
                     if (saved)
                     {
+                        var updatedUser = await repo.RetrieveUser(user.Email);
+
                         return new APIGatewayProxyResponse()
                         {
                             StatusCode = (int)HttpStatusCode.OK,
-                            Body = JsonConvert.SerializeObject(user),
+                            Body = JsonConvert.SerializeObject(updatedUser),
                             Headers = _responseHeader
                         };
                     }
