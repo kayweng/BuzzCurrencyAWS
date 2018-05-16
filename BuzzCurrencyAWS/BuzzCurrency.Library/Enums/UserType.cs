@@ -8,22 +8,22 @@ namespace BuzzCurrency.Library.Enums
 {
     public enum UserType
     {
-        [Description("Unconfirmed User")]
+        [Description("Guest")]
         Unconfirmed,
 
-        [Description("Confirmed User")]
+        [Description("General User")]
         Confirmed,
 
         [Description("Genuine User")]
         Genuine,
 
-        [Description("VIP User")]
+        [Description("VIP")]
         VIP,
 
-        [Description("VVIP User")]
+        [Description("VVIP")]
         VVIP,
 
-        [Description("Banned User")]
+        [Description("Banned")]
         Banned
     }
 }
